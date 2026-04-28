@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>天天开心 · 治愈祝福</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: linear-gradient(135deg, #fef9f9 0%, #f0f8ff 50%, #fff5f8 100%);
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            position: relative;
+        }
+
+        .light-spot {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(35px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .center-text {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: "KaiTi", "STKaiti", serif;
+            font-size: 28px;
+            color: #666;
+            font-weight: 400;
+            letter-spacing: 4px;
+            z-index: -1;
+            user-select: none;
+            opacity: 0.85;
+        }
+
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 182, 193, 0.25);
+            animation: float 15s infinite ease-in-out;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) scale(0.5); opacity: 0; }
+        }
+
+        #danmaku {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .bullet {
+            position: absolute;
+            font-size: 20px;
+            font-weight: 500;
+            white-space: nowrap;
+            padding: 5px 14px;
+            border: 1px solid rgba(0,0,0,0.12);
+            border-radius: 25px;
+            background: rgba(255,255,255,0.4);
+            backdrop-filter: blur(3px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .music-btn {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.85);
+            border: 0;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 999;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="light-spot" style="width:300px;height:300px;top:10%;left:10%;background:rgba(255,182,193,0.2);"></div>
+    <div class="light-spot" style="width:250px;height:250px;top:60%;right:15%;background:rgba(173,216,230,0.2);"></div>
+    <div class="light-spot" style="width:200px;height:200px;bottom:10%;left:20%;background:rgba(255,218,185,0.2);"></div>
+
+    <div class="center-text">天天开心</div>
+    <div id="particles"></div>
+    <div id="danmaku"></div>
+    <button class="music-btn" id="musicBtn">🎵</button>
+
+    <!-- 本地音乐 正确写法：只写文件名！ -->
+    <audio id="bgm" loop></audio>
+
+    <script>
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 18; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.bottom = `-${Math.random() * 20}px`;
+            particle.style.width = `${Math.random() * 8 + 3}px`;
+            particle.style.height = particle.style.width;
+            particle.style.animationDelay = `${Math.random() * 15}s`;
+            particle.style.animationDuration = `${Math.random() * 12 + 10}s`;
+            particlesContainer.appendChild(particle);
+        }
+
+        const msgList = [
+            "天天开心！", "万事顺意～", "平安喜乐", "心想事成",
+            "永远快乐", "无忧无虑", "被爱包围", "幸福满满",
+            "好运连连", "笑口常开", "生活超甜", "一切顺利",
+            "日日好心情", "岁岁常欢愉", "万事皆可期", "烦恼全走开"
+        ];
+        const colorList = ["#555","#ff7a7a","#57a0ff","#60c589","#b066d9","#ffb050","#444","#a855f7"];
+        
+        const danmakuBox = document.getElementById('danmaku');
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+
+        function createDanmaku() {
+            const bullet = document.createElement('div');
+            bullet.className = 'bullet';
+            bullet.innerText = msgList[Math.floor(Math.random() * msgList.length)];
+            bullet.style.color = colorList[Math.floor(Math.random() * colorList.length)];
+
+            let startX, startY;
+            const dir = Math.floor(Math.random() * 4);
+            switch(dir) {
+                case 0: startX = Math.random() * window.innerWidth; startY = -50; break;
+                case 1: startX = Math.random() * window.innerWidth; startY = window.innerHeight + 50; break;
+                case 2: startX = -100; startY = Math.random() * window.innerHeight; break;
+                case 3: startX = window.innerWidth + 100; startY = Math.random() * window.innerHeight; break;
+            }
+
+            bullet.style.left = startX + 'px';
+            bullet.style.top = startY + 'px';
+            danmakuBox.appendChild(bullet);
+
+            const speed = 0.5 + Math.random() * 0.4;
+            let x = startX, y = startY;
+
+            function move() {
+                x += (centerX - x) / 50 * speed;
+                y += (centerY - y) / 50 * speed;
+                bullet.style.left = x + 'px';
+                bullet.style.top = y + 'px';
+
+                const dis = Math.hypot(centerX - x, centerY - y);
+                if(dis < 40) {
+                    bullet.remove();
+                    return;
+                }
+                requestAnimationFrame(move);
+            }
+            move();
+        }
+
+        setInterval(createDanmaku, 220);
+
+        // ============== 音乐修复 ==============
+        const bgm = document.getElementById('bgm');
+        bgm.src = "偏爱.钢琴版.mp3"; // 直接用你桌面的文件名
+        bgm.volume = 0.6;
+        let isPlay = false;
+        const btn = document.getElementById('musicBtn');
+
+        function toggle() {
+            if(isPlay) {
+                bgm.pause();
+                btn.innerText = "🔇";
+            } else {
+                bgm.play().catch(() => {});
+                btn.innerText = "🔊";
+            }
+            isPlay = !isPlay;
+        }
+
+        btn.onclick = toggle;
+        document.addEventListener("click", toggle, { once: true });
+    </script>
+</body>
+</html>
